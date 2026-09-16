@@ -47,6 +47,7 @@ const loadingOverlay = document.getElementById("loading-overlay");
 const loadingText = document.getElementById("loading-text");
 const countdownEl = document.getElementById("countdown");
 const errorText = document.getElementById("camera-error");
+const trackingHint = document.getElementById("tracking-hint");
 
 const hudScore = document.getElementById("hud-score");
 const hudHits = document.getElementById("hud-hits");
@@ -61,6 +62,8 @@ let sessionState = "idle"; // idle | countdown | playing | done
 let stream = null;
 let countdownInterval = null;
 let countdownTimeout = null;
+let lastBodySeenTime = 0;
+const NO_BODY_HINT_DELAY = 1500;
 
 async function initTrackerOnce() {
   if (tracker) return;
@@ -149,6 +152,7 @@ function runCountdown() {
         sessionState = "playing";
         game.start();
         lastFrameTime = performance.now();
+        lastBodySeenTime = lastFrameTime;
         loop();
       }, 500);
     }
@@ -162,6 +166,9 @@ function loop() {
   lastFrameTime = now;
 
   const landmarks = tracker.detect(video);
+  if (landmarks) lastBodySeenTime = now;
+  trackingHint.classList.toggle("hidden", now - lastBodySeenTime < NO_BODY_HINT_DELAY);
+
   game.update(landmarks, dt, canvas.width, canvas.height);
   game.render(ctx, settings.skeleton, landmarks);
 
@@ -191,6 +198,7 @@ function finishSession() {
   game.stop();
   playFinish();
   stopCamera();
+  trackingHint.classList.add("hidden");
 
   const res = game.getResults();
   document.getElementById("res-score").textContent = res.score;
@@ -222,6 +230,7 @@ function quitSession() {
   if (game) game.stop();
   stopCamera();
   countdownEl.classList.add("hidden");
+  trackingHint.classList.add("hidden");
   showScreen("start");
 }
 
