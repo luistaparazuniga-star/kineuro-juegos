@@ -1,6 +1,6 @@
 import { recordSession } from "./profiles.js";
 import { getPatientPreset, personalizedIntro } from "./patientPresets.js";
-import { playCountdownTick, playGo, playFinish, unlockAudio, startAmbientMusic, stopAmbientMusic } from "./soundEngine.js";
+import { playCountdownTick, playGo, playFinish, playAchievement, unlockAudio, startAmbientMusic, stopAmbientMusic } from "./soundEngine.js";
 import { showScreen } from "./screens.js";
 
 const NO_BODY_HINT_DELAY = 1500;
@@ -49,6 +49,8 @@ export function createGameShell({ onExit }) {
   // Results screen
   const resScore = document.getElementById("res-score");
   const resultsExtra = document.getElementById("results-extra");
+  const resPointsAwarded = document.getElementById("res-points-awarded");
+  const resNewAchievements = document.getElementById("res-new-achievements");
 
   let meta = null;
   let profile = null;
@@ -65,6 +67,11 @@ export function createGameShell({ onExit }) {
   let countdownTimeout = null;
   let lastBodySeenTime = 0;
   let hudExtraEls = [];
+  // Bumped by beginSession() and by stopSession(); any in-flight beginSession()
+  // whose token no longer matches (because the player quit mid-load) bails out
+  // instead of starting the camera loop, music and countdown behind the
+  // catalog/start screen.
+  let activeToken = 0;
 
   function clearPhaseUI() {
     cameraWrap.classList.remove("phase-move", "phase-freeze");
@@ -159,6 +166,35 @@ export function createGameShell({ onExit }) {
     if (meta.hasPhaseUI) clearPhaseUI();
   }
 
+  /** Shows what a session earned: points, level-up, and any newly unlocked
+   * achievements — recordSession() already computes all of this, it just
+   * wasn't being surfaced anywhere before. */
+  function showSessionRewards(sessionResult) {
+    if (!sessionResult) {
+      resPointsAwarded.classList.add("hidden");
+      resNewAchievements.classList.add("hidden");
+      return;
+    }
+
+    const { pointsAwarded, newAchievements, leveledUp } = sessionResult;
+    resPointsAwarded.textContent = leveledUp ? `+${pointsAwarded} pts · ¡Subiste de nivel! 🎉` : `+${pointsAwarded} pts`;
+    resPointsAwarded.classList.remove("hidden");
+
+    resNewAchievements.innerHTML = "";
+    if (newAchievements.length > 0) {
+      for (const ach of newAchievements) {
+        const chip = document.createElement("div");
+        chip.className = "achievement-chip";
+        chip.innerHTML = `<span>${ach.icon}</span><span>${ach.name}</span>`;
+        resNewAchievements.appendChild(chip);
+      }
+      resNewAchievements.classList.remove("hidden");
+      playAchievement();
+    } else {
+      resNewAchievements.classList.add("hidden");
+    }
+  }
+
   async function initTrackerOnce() {
     if (tracker) return;
     loadingText.textContent = "Cargando el motor de seguimiento…";
@@ -191,6 +227,7 @@ export function createGameShell({ onExit }) {
   }
 
   async function beginSession() {
+    const token = ++activeToken;
     errorText.textContent = "";
     unlockAudio();
     showScreen("game");
@@ -200,9 +237,15 @@ export function createGameShell({ onExit }) {
     try {
       await startCamera();
     } catch (err) {
+      if (token !== activeToken) return;
       loadingOverlay.classList.add("hidden");
       errorText.textContent = "No se pudo acceder a la cámara. Revisá los permisos e intentalo de nuevo.";
       showScreen("start");
+      stopCamera();
+      return;
+    }
+    if (token !== activeToken) {
+      // The player quit while the camera permission prompt was up.
       stopCamera();
       return;
     }
@@ -210,24 +253,34 @@ export function createGameShell({ onExit }) {
     try {
       await initTrackerOnce();
     } catch (err) {
+      if (token !== activeToken) return;
       loadingOverlay.classList.add("hidden");
       errorText.textContent = "No se pudo cargar el motor de seguimiento. Revisá tu conexión a internet e intentalo de nuevo.";
       showScreen("start");
       stopCamera();
       return;
     }
+    if (token !== activeToken) {
+      stopCamera();
+      return;
+    }
 
     loadingOverlay.classList.add("hidden");
-    const mod = await import(`/${meta.modulePath}`);
+    const mod = await import(`../../${meta.modulePath}`);
+    if (token !== activeToken) {
+      stopCamera();
+      return;
+    }
+
     const GameClass = mod[meta.className] || mod.Game;
     game = new GameClass({ ...settings }, onPhaseChange);
     buildHudExtra();
     timeLeft = settings.duration;
     updateHud();
-    runCountdown();
+    runCountdown(token);
   }
 
-  function runCountdown() {
+  function runCountdown(token) {
     sessionState = "countdown";
     let n = 3;
     countdownEl.classList.remove("hidden");
@@ -245,6 +298,7 @@ export function createGameShell({ onExit }) {
         playGo();
         countdownTimeout = setTimeout(() => {
           countdownTimeout = null;
+          if (token !== activeToken) return;
           countdownEl.classList.add("hidden");
           sessionState = "playing";
           game.start();
@@ -292,15 +346,13 @@ export function createGameShell({ onExit }) {
 
     const res = game.getResults();
     showResults(res);
-
-    if (profile) {
-      recordSession(profile.id, meta.id, res);
-    }
+    showSessionRewards(profile ? recordSession(profile.id, meta.id, res) : null);
 
     showScreen("results");
   }
 
   function stopSession() {
+    activeToken++;
     sessionState = "idle";
     if (rafId) cancelAnimationFrame(rafId);
     if (countdownInterval) clearInterval(countdownInterval);

@@ -298,6 +298,23 @@
   text-align: center;
 }
 
+.points-awarded {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--success);
+  font-weight: 700;
+}
+
+.points-awarded.hidden,
+#res-new-achievements.hidden {
+  display: none;
+}
+
+#res-new-achievements {
+  justify-content: center;
+  margin: 4px 0 18px;
+}
+
 .results-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
