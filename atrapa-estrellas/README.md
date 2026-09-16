@@ -6,7 +6,18 @@ video nunca sale del dispositivo). El paciente mueve los brazos para
 alcanzar estrellas en pantalla; al final se muestra puntaje, precisión y
 amplitud de movimiento alcanzada.
 
-Ruta pensada: `games.kineurog.com/atrapa-estrellas`.
+Este juego (como los otros nueve) no tiene su propia página: vive dentro de
+la app de una sola página en la raíz del repo (`index.html` +
+[`shared/js/app.js`](../shared/js/app.js) y
+[`shared/js/gameShell.js`](../shared/js/gameShell.js)), que se encarga de la
+cámara, el countdown, el HUD y la pantalla de resultados. Esta carpeta solo
+contiene la mecánica propia del juego:
+
+```
+js/game.js   Lógica del juego: spawn de estrellas, colisiones, puntaje,
+             combos, partículas. Se importa dinámicamente desde el shell
+             (ver la entrada "atrapa-estrellas" en shared/js/profiles.js).
+```
 
 ## Requisitos
 
@@ -22,20 +33,8 @@ puede desbloquear logros/nivel.
 ## Probar localmente
 
 ```bash
-# desde la raíz del repo, no desde esta carpeta —
-# el juego depende de shared/js/profiles.js
+# desde la raíz del repo
 python3 -m http.server 8080
-# abrir http://localhost:8080, crear un perfil, y entrar a Atrapa las Estrellas
-```
-
-## Estructura
-
-```
-index.html          Pantallas de la app (menú, juego, resultados)
-css/style.css        Estilos, responsive para celular/tablet
-js/main.js            Máquina de estados, cámara, loop del juego
-js/poseTracker.js     Envoltorio sobre MediaPipe Pose Landmarker
-js/landmarks.js       Índices de los puntos del cuerpo (sin dependencias externas)
-js/game.js             Lógica del juego: spawn de estrellas, colisiones, puntaje
-js/sound.js            Sonidos generados con Web Audio (sin archivos de audio)
+# abrir http://localhost:8080, crear/elegir un perfil y tocar la tarjeta
+# "Atrapa las Estrellas" en el catálogo
 ```

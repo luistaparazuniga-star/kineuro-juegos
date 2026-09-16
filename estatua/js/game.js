@@ -1,5 +1,5 @@
-import { LANDMARK } from "./landmarks.js";
-import { playFreezeAlert, playMoveCue, playStableHold, playMiss } from "./sound.js";
+import { LANDMARK } from "../../shared/js/landmarks.js";
+import { playFreezeAlert, playMoveCue, playStableHold, playMiss, playAchievement } from "../../shared/js/soundEngine.js";
 
 const DIFFICULTY = {
   easy: { moveMin: 2.5, moveMax: 4, freezeDuration: 2.0, tolerance: 0.07 },
@@ -84,7 +84,11 @@ export class StatueGame {
       this.maxStreak = Math.max(this.maxStreak, this.streak);
       const bonus = Math.round(this.diff.freezeDuration * 15) + this.streak * 5;
       this.score += bonus;
-      playStableHold();
+      if (this.streak > 0 && this.streak % 3 === 0) {
+        playAchievement();
+      } else {
+        playStableHold();
+      }
     } else {
       this.breaks++;
       this.streak = 0;

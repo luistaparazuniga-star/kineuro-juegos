@@ -1,7 +1,7 @@
 :root {
-  --bg: #0f1b2d;
-  --bg-alt: #142743;
-  --card: #1c3355;
+  --bg: #10192b;
+  --bg-alt: #16233d;
+  --card: #1d3157;
   --primary: #3fd0c9;
   --primary-dark: #23a39c;
   --accent: #ff9f5b;
@@ -10,6 +10,7 @@
   --success: #4ade80;
   --danger: #f87171;
   --radius: 18px;
+  --font-display: "Baloo 2", "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
 }
 
 * {
@@ -21,24 +22,37 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100dvh;
-  background: var(--bg);
+  background: radial-gradient(circle at 15% 0%, #1b2f52 0%, var(--bg) 45%) fixed, var(--bg);
   color: var(--text);
   font-family: "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
 }
 
+h1,
+h2,
+.brand-logo {
+  font-family: var(--font-display);
+}
+
+/* A chunky, game-y button: a solid "shadow" underneath that the button
+   presses into on click, instead of a flat tap target. */
 .btn-primary {
   padding: 16px;
   border: none;
   border-radius: 14px;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #06251f;
+  font-family: var(--font-display);
   font-size: 17px;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 5px 0 #14766f, 0 10px 18px rgba(0, 0, 0, 0.35);
+  transform: translateY(0);
+  transition: transform 0.08s, box-shadow 0.08s;
 }
 
 .btn-primary:active {
-  transform: scale(0.98);
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #14766f, 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .btn-secondary {
@@ -47,7 +61,12 @@ body {
   border-radius: 14px;
   background: transparent;
   color: var(--text-muted);
+  font-family: var(--font-display);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
 }

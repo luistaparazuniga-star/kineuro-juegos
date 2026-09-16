@@ -1,9 +1,12 @@
 # Kineuro_juegos
 
 Catálogo de juegos de fisioterapia y salud psicológica de Kineurog: cada
-juego usa la cámara del celular/tablet como sensor de movimiento y vive en
-su propia carpeta en la raíz de este repo, pensado para publicarse en
-`games.kineurog.com`.
+juego usa la cámara del celular/tablet como sensor de movimiento. Toda la
+app —perfiles, catálogo y los 10 juegos— vive en una sola página
+(`index.html` en la raíz), pensada para publicarse en `games.kineurog.com`.
+Cada juego mantiene su propia mecánica, puntaje y estadísticas de forma
+independiente (ver [Perfiles, puntos y logros](#perfiles-puntos-y-logros));
+lo único compartido es la "carcasa" de cámara/HUD/resultados.
 
 Antes de jugar, cada paciente crea (o elige) su **perfil**: queda guardado
 en el dispositivo, acumula puntos por sesión, sube de nivel, desbloquea
@@ -17,13 +20,37 @@ estadísticas entre pacientes.
 
 - [`atrapa-estrellas`](atrapa-estrellas) — alcance de brazo/hombro:
   el paciente atrapa estrellas que aparecen alrededor de su cuerpo.
-  Desbloqueado desde el nivel 1.
+  Nivel 1.
+- [`topos-traviesos`](topos-traviesos) — reflejos y control de impulsos:
+  golpear topos que aparecen y desaparecen, evitando las bombas. Nivel 1.
+- [`secuencia-veloz`](secuencia-veloz) — atención y coordinación en orden:
+  tocar números en secuencia (1, 2, 3…) lo más rápido posible. Nivel 2.
 - [`estatua`](estatua) — equilibrio y control postural: se mueve
   libremente y se congela por completo cuando se le indica; mide qué tan
-  quieto se mantiene. Útil también para control de impulsos (TDAH).
-  Se desbloquea en el nivel 2.
+  quieto se mantiene. Útil también para control de impulsos (TDAH). Nivel 2.
+- [`derriba-conos`](derriba-conos) — desplazamientos laterales rápidos:
+  moverse de un lado a otro para derribar conos que aparecen en los
+  extremos. Nivel 2.
+- [`ritmo-activo`](ritmo-activo) — resistencia y movimiento continuo:
+  cruzar de un lado a otro sin parar para sumar repeticiones. Nivel 3.
+- [`esquiva-rayos`](esquiva-rayos) — agilidad y reacción de todo el
+  cuerpo: ubicarse dentro del hueco de un rayo antes de que se dispare.
+  Nivel 3.
+- [`rebote-total`](rebote-total) — reacción visomotora estilo arcade:
+  controlar una barra con el cuerpo para no dejar caer la pelota. Nivel 3.
+- [`salto-del-canguro`](salto-del-canguro) — salto y coordinación de
+  piernas: saltar cuando se indica, dentro de la ventana de tiempo. Nivel 4.
+- [`patada-certera`](patada-certera) — coordinación de piernas y brazos:
+  objetivos altos con la mano, objetivos bajos levantando la rodilla.
+  Nivel 4.
 
-Cada carpeta de juego tiene su propio README con el detalle técnico.
+Cada carpeta de juego solo tiene un `js/game.js` (la mecánica: spawn de
+objetivos, colisiones, puntaje) que la app importa dinámicamente según la
+entrada de ese juego en `shared/js/profiles.js` (`GAMES`). Todo lo demás —
+cámara, countdown, HUD, pantalla de resultados, sonido/música, presets por
+tipo de paciente— es la "carcasa" común en [`shared/js`](shared/js) y
+[`shared/css`](shared/css); ver especialmente `gameShell.js` (el runner) y
+`app.js` (perfiles + catálogo + selección de juego).
 
 ## Perfiles, puntos y logros
 

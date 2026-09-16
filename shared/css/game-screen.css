@@ -1,23 +1,13 @@
-* { box-sizing: border-box; }
+/* Shared chrome for every camera minigame: start screen, game screen (camera,
+   HUD, countdown, tracking hint) and results screen. Game-specific colors and
+   one-off elements stay in each game's own stylesheet; this file only holds
+   what's identical across games. Depends on the CSS vars from theme.css. */
 
-body {
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.screen {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100dvh;
-  width: 100%;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
-
-.screen.active {
-  display: flex;
-}
+/* .screen/.brand/.subtitle/.panel/.field/.btn-group/.opt live in catalog.css,
+   loaded right before this file — both are always loaded together in
+   index.html, so they share one definition instead of two that could drift
+   out of sync. This file only adds .back-link and the game-specific pieces
+   catalog.css doesn't need (camera, HUD, countdown, results). */
 
 .back-link {
   align-self: flex-start;
@@ -29,43 +19,6 @@ body {
 
 /* ---------- Start screen ---------- */
 
-.brand {
-  text-align: center;
-  margin-top: 10px;
-}
-
-.brand-logo {
-  font-size: 48px;
-  line-height: 1;
-}
-
-.brand h1 {
-  margin: 8px 0 2px;
-  font-size: 28px;
-  letter-spacing: 0.5px;
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-.panel {
-  width: 100%;
-  max-width: 480px;
-  background: var(--bg-alt);
-  border-radius: var(--radius);
-  padding: 22px 20px 26px;
-  margin: 20px 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-}
-
-.panel h2 {
-  margin: 0 0 6px;
-  font-size: 20px;
-}
-
 .hint {
   color: var(--text-muted);
   font-size: 14px;
@@ -73,15 +26,19 @@ body {
   margin: 0 0 18px;
 }
 
-.field {
-  margin-bottom: 18px;
+.intro-tip.hidden {
+  display: none;
 }
 
-.field label {
-  display: block;
-  font-size: 14px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
+.intro-tip {
+  background: rgba(63, 208, 201, 0.12);
+  border: 1px solid rgba(63, 208, 201, 0.35);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text);
+  margin: 0 0 18px;
+  line-height: 1.4;
 }
 
 .field-toggle {
@@ -98,30 +55,6 @@ body {
   width: 22px;
   height: 22px;
   accent-color: var(--primary);
-}
-
-.btn-group {
-  display: flex;
-  gap: 8px;
-}
-
-.opt {
-  flex: 1;
-  padding: 12px 6px;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  background: #1c3355;
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.opt.selected {
-  background: rgba(63, 208, 201, 0.15);
-  border-color: var(--primary);
-  color: var(--primary);
 }
 
 .error-text {
@@ -158,15 +91,8 @@ body {
   transition: box-shadow 0.25s;
 }
 
-.camera-wrap.phase-move {
-  box-shadow: inset 0 0 0 6px rgba(63, 208, 201, 0.6);
-}
-
-.camera-wrap.phase-freeze {
-  box-shadow: inset 0 0 0 8px rgba(248, 113, 113, 0.75);
-}
-
-#video, #overlay {
+#video,
+#overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -201,7 +127,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 #loading-text {
@@ -248,15 +176,39 @@ body {
   font-size: 26px;
   font-weight: 800;
   color: #fff;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  background: rgba(15, 27, 45, 0.55);
 }
 
 .phase-banner.move span {
-  background: rgba(63, 208, 201, 0.35);
+  box-shadow: inset 0 0 0 3px rgba(63, 208, 201, 0.8);
 }
 
 .phase-banner.freeze span {
-  background: rgba(248, 113, 113, 0.45);
+  box-shadow: inset 0 0 0 3px rgba(248, 113, 113, 0.85);
+}
+
+.tracking-hint {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 18px;
+  transform: scaleX(-1);
+  pointer-events: none;
+  z-index: 4;
+  text-align: center;
+  color: #fff;
+  background: rgba(15, 27, 45, 0.85);
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: calc(100% - 32px);
+}
+
+.tracking-hint.hidden {
+  display: none;
 }
 
 .hud {
@@ -269,6 +221,10 @@ body {
   gap: 10px;
   padding: 12px 14px;
   z-index: 5;
+}
+
+.hud-extra {
+  display: contents;
 }
 
 .hud-item {
@@ -290,8 +246,34 @@ body {
 }
 
 .hud-value {
+  font-family: var(--font-display);
   font-size: 18px;
   font-weight: 700;
+}
+
+.combo-badge {
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: fit-content;
+  transform: scaleX(-1);
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), #ff5b8d);
+  color: #2a0a12;
+  font-weight: 800;
+  font-size: 14px;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.combo-badge.visible {
+  opacity: 1;
 }
 
 .btn-quit {
@@ -316,11 +298,32 @@ body {
   text-align: center;
 }
 
+.points-awarded {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--success);
+  font-weight: 700;
+}
+
+.points-awarded.hidden,
+#res-new-achievements.hidden {
+  display: none;
+}
+
+#res-new-achievements {
+  justify-content: center;
+  margin: 4px 0 18px;
+}
+
 .results-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin: 18px 0 22px;
+}
+
+.results-extra-fields {
+  display: contents;
 }
 
 .result-card {
@@ -332,7 +335,12 @@ body {
   gap: 4px;
 }
 
+.result-card.wide {
+  grid-column: 1 / -1;
+}
+
 .result-value {
+  font-family: var(--font-display);
   font-size: 26px;
   font-weight: 800;
   color: var(--primary);
@@ -344,5 +352,7 @@ body {
 }
 
 @media (min-width: 700px) {
-  .panel { padding: 30px 34px 34px; }
+  .panel {
+    padding: 30px 34px 34px;
+  }
 }
