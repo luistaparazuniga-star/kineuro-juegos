@@ -143,26 +143,38 @@
 
 .btn-group {
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
-.btn-group .opt {
-  flex: 1 1 45%;
+.opt {
+  flex: 1;
   padding: 12px 6px;
   border-radius: 12px;
   border: 2px solid transparent;
   background: #1c3355;
   color: var(--text);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
 }
 
-.btn-group .opt.selected {
+.opt.selected {
   background: rgba(63, 208, 201, 0.15);
   border-color: var(--primary);
   color: var(--primary);
+}
+
+/* Patient-type picker has 4 options: wrap them into a 2x2 grid instead of
+   squeezing four buttons into one row. Difficulty/duration/arm groups (3
+   options) stay on the default single row. */
+.btn-group.wrap {
+  flex-wrap: wrap;
+}
+
+.btn-group.wrap .opt {
+  flex: 1 1 45%;
+  font-size: 13px;
 }
 
 /* --- Catalog --- */
@@ -231,12 +243,36 @@
   color: var(--text-muted);
 }
 
+.catalog-hero {
+  width: 100%;
+  max-width: 560px;
+  background: linear-gradient(135deg, rgba(63, 208, 201, 0.18), rgba(255, 159, 91, 0.14));
+  border: 1px solid rgba(63, 208, 201, 0.25);
+  border-radius: 20px;
+  padding: 18px 20px;
+  margin-bottom: 8px;
+}
+
+.catalog-hero h2 {
+  margin: 0 0 4px;
+  font-size: 22px;
+}
+
+.catalog-hero p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .section-title {
   width: 100%;
   max-width: 560px;
+  font-family: var(--font-display);
   font-size: 15px;
+  font-weight: 700;
   color: var(--text-muted);
-  margin: 10px 0 10px;
+  margin: 18px 0 10px;
 }
 
 .game-grid {
@@ -250,21 +286,46 @@
 .game-card {
   position: relative;
   background: var(--card);
+  border: none;
+  border-top: 4px solid var(--game-color, var(--primary));
   border-radius: 18px;
   padding: 20px;
+  text-align: left;
   text-decoration: none;
   color: var(--text);
   display: flex;
   flex-direction: column;
   gap: 6px;
   overflow: hidden;
+  cursor: pointer;
+  font: inherit;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.game-card:hover,
+.game-card:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+}
+
+.game-card:active {
+  transform: translateY(0);
 }
 
 .game-card .icon {
-  font-size: 34px;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--game-color, var(--primary)) 25%, transparent);
 }
 
 .game-card .name {
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 17px;
 }
@@ -275,6 +336,7 @@
 }
 
 .game-card.locked {
+  cursor: default;
   filter: grayscale(0.8);
   opacity: 0.6;
 }

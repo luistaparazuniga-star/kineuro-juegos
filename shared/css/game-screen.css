@@ -3,36 +3,11 @@
    one-off elements stay in each game's own stylesheet; this file only holds
    what's identical across games. Depends on the CSS vars from theme.css. */
 
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-}
-
-.screen {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100dvh;
-  width: 100%;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
-
-.screen.active {
-  display: flex;
-}
+/* .screen/.brand/.subtitle/.panel/.field/.btn-group/.opt live in catalog.css,
+   loaded right before this file — both are always loaded together in
+   index.html, so they share one definition instead of two that could drift
+   out of sync. This file only adds .back-link and the game-specific pieces
+   catalog.css doesn't need (camera, HUD, countdown, results). */
 
 .back-link {
   align-self: flex-start;
@@ -43,67 +18,6 @@ body {
 }
 
 /* ---------- Start screen ---------- */
-
-.brand {
-  text-align: center;
-  margin-top: 12px;
-}
-
-.brand-logo {
-  font-size: 48px;
-  line-height: 1;
-}
-
-.brand h1 {
-  margin: 8px 0 2px;
-  font-size: 28px;
-  letter-spacing: 0.5px;
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-.panel {
-  width: 100%;
-  max-width: 480px;
-  background: var(--bg-alt);
-  border-radius: var(--radius);
-  padding: 22px 20px 26px;
-  margin: 20px 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-}
-
-.panel h2 {
-  margin: 0 0 6px;
-  font-size: 20px;
-}
-
-.btn-group {
-  display: flex;
-  gap: 8px;
-}
-
-.opt {
-  flex: 1;
-  padding: 12px 6px;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  background: #1c3355;
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.opt.selected {
-  background: rgba(63, 208, 201, 0.15);
-  border-color: var(--primary);
-  color: var(--primary);
-}
 
 .hint {
   color: var(--text-muted);
@@ -125,17 +39,6 @@ body {
   color: var(--text);
   margin: 0 0 18px;
   line-height: 1.4;
-}
-
-.field {
-  margin-bottom: 18px;
-}
-
-.field label {
-  display: block;
-  font-size: 14px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
 }
 
 .field-toggle {
@@ -320,6 +223,10 @@ body {
   z-index: 5;
 }
 
+.hud-extra {
+  display: contents;
+}
+
 .hud-item {
   background: rgba(15, 27, 45, 0.65);
   backdrop-filter: blur(6px);
@@ -339,6 +246,7 @@ body {
 }
 
 .hud-value {
+  font-family: var(--font-display);
   font-size: 18px;
   font-weight: 700;
 }
@@ -397,6 +305,10 @@ body {
   margin: 18px 0 22px;
 }
 
+.results-extra-fields {
+  display: contents;
+}
+
 .result-card {
   background: #1c3355;
   border-radius: 14px;
@@ -411,6 +323,7 @@ body {
 }
 
 .result-value {
+  font-family: var(--font-display);
   font-size: 26px;
   font-weight: 800;
   color: var(--primary);

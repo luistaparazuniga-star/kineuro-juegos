@@ -4,8 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Kineurog Juegos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="shared/css/theme.css" />
   <link rel="stylesheet" href="shared/css/catalog.css" />
+  <link rel="stylesheet" href="shared/css/game-screen.css" />
 </head>
 <body>
 
@@ -37,7 +41,7 @@
 
       <div class="field">
         <label>Perfil</label>
-        <div id="type-group" class="btn-group"></div>
+        <div id="type-group" class="btn-group wrap"></div>
       </div>
 
       <div class="field">
@@ -66,6 +70,11 @@
       </div>
     </div>
 
+    <div class="catalog-hero">
+      <h2>Elegí tu misión 🎮</h2>
+      <p>10 juegos, un solo lugar. Cada uno mide algo distinto — tocá una tarjeta para empezar.</p>
+    </div>
+
     <h2 class="section-title">Juegos</h2>
     <div id="game-grid" class="game-grid"></div>
 
@@ -73,6 +82,96 @@
     <div id="achievement-grid" class="achievement-grid"></div>
   </section>
 
-  <script type="module" src="shared/js/catalog.js"></script>
+  <!-- INICIO DE JUEGO (genérico, se completa según el juego elegido) -->
+  <section id="screen-start" class="screen">
+    <a href="#" id="game-back-link" class="back-link">← Catálogo</a>
+    <div class="brand">
+      <div class="brand-logo" id="game-brand-icon">🎮</div>
+      <h1 id="game-brand-name">Juego</h1>
+      <p class="subtitle">Kineurog Juegos</p>
+    </div>
+
+    <div class="panel">
+      <p class="hint" id="game-hint"></p>
+      <p id="intro-tip" class="intro-tip hidden"></p>
+
+      <div id="extra-fields"></div>
+
+      <div class="field">
+        <label>Dificultad</label>
+        <div class="btn-group" id="difficulty-group">
+          <button class="opt" data-value="easy">Fácil</button>
+          <button class="opt selected" data-value="medium">Medio</button>
+          <button class="opt" data-value="hard">Difícil</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Duración de la sesión</label>
+        <div class="btn-group" id="duration-group">
+          <button class="opt" data-value="60">1 min</button>
+          <button class="opt selected" data-value="120">2 min</button>
+          <button class="opt" data-value="180">3 min</button>
+        </div>
+      </div>
+
+      <div class="field field-toggle">
+        <label for="skeleton-toggle">Mostrar guía de movimiento</label>
+        <input type="checkbox" id="skeleton-toggle" checked />
+      </div>
+
+      <button id="btn-start" class="btn-primary" style="width:100%">Comenzar</button>
+      <p id="camera-error" class="error-text"></p>
+    </div>
+
+    <p class="footer-note" id="game-footer-note"></p>
+  </section>
+
+  <!-- PANTALLA DE JUEGO (genérica) -->
+  <section id="screen-game" class="screen">
+    <div class="camera-wrap" id="camera-wrap">
+      <video id="video" playsinline autoplay muted></video>
+      <canvas id="overlay"></canvas>
+      <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p id="loading-text">Preparando la cámara…</p>
+      </div>
+      <div id="countdown" class="countdown hidden"></div>
+      <div id="combo-badge" class="combo-badge"></div>
+      <div id="phase-banner" class="phase-banner hidden"></div>
+      <div id="tracking-hint" class="tracking-hint hidden">No te vemos bien: alejate un poco y buscá más luz</div>
+    </div>
+
+    <div class="hud">
+      <div class="hud-item">
+        <span class="hud-label">Puntos</span>
+        <span id="hud-score" class="hud-value">0</span>
+      </div>
+      <div id="hud-extra" class="hud-extra"></div>
+      <div class="hud-item">
+        <span class="hud-label">Tiempo</span>
+        <span id="hud-time" class="hud-value">0:00</span>
+      </div>
+      <button id="btn-quit" class="btn-quit" aria-label="Salir">✕</button>
+    </div>
+  </section>
+
+  <!-- RESULTADOS (genérico) -->
+  <section id="screen-results" class="screen">
+    <div class="panel results-panel">
+      <h2>¡Sesión completada!</h2>
+      <div class="results-grid">
+        <div class="result-card">
+          <span class="result-value" id="res-score">0</span>
+          <span class="result-label">Puntos</span>
+        </div>
+        <div id="results-extra" class="results-extra-fields"></div>
+      </div>
+      <button id="btn-again" class="btn-primary" style="width:100%">Jugar de nuevo</button>
+      <button id="btn-menu" class="btn-secondary" style="width:100%; margin-top:10px;">Volver al catálogo</button>
+    </div>
+  </section>
+
+  <script type="module" src="shared/js/app.js"></script>
 </body>
 </html>

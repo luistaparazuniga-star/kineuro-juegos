@@ -41,20 +41,24 @@ Al terminar la sesión, estos datos se guardan en el perfil activo vía
 ## Probar localmente
 
 ```bash
-# desde la raíz del repo, no desde esta carpeta —
-# el juego depende de shared/js/profiles.js
+# desde la raíz del repo
 python3 -m http.server 8080
-# abrir http://localhost:8080, crear un perfil, y entrar a Estatua
+# abrir http://localhost:8080, crear/elegir un perfil y tocar la tarjeta
+# "Estatua" en el catálogo
 ```
 
 ## Estructura
 
+Este juego (como los otros nueve) no tiene su propia página: vive dentro de
+la app de una sola página en la raíz del repo (`index.html` +
+[`shared/js/app.js`](../shared/js/app.js) y
+[`shared/js/gameShell.js`](../shared/js/gameShell.js)), que se encarga de la
+cámara, el countdown, el HUD (incluido el aviso "¡Quieto!/¡Moveté!") y la
+pantalla de resultados. Esta carpeta solo contiene la mecánica propia del
+juego:
+
 ```
-index.html          Pantallas de la app (menú, juego, resultados)
-css/style.css         Estilos específicos de este juego (usa shared/css/theme.css como base)
-js/main.js             Máquina de estados, cámara, loop del juego, registro de sesión
-js/poseTracker.js      Envoltorio sobre MediaPipe Pose Landmarker
-js/landmarks.js        Índices de los puntos del cuerpo
-js/game.js              Lógica de fases mover/congelar y detección de movimiento
-js/sound.js              Sonidos generados con Web Audio (sin archivos de audio)
+js/game.js   Lógica de fases mover/congelar y detección de movimiento.
+             Se importa dinámicamente desde el shell (ver la entrada
+             "estatua" en shared/js/profiles.js).
 ```

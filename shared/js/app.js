@@ -12,18 +12,8 @@ import {
   allAchievementIds,
   achievementInfo,
 } from "./profiles.js";
-
-const screens = {
-  profiles: document.getElementById("screen-profiles"),
-  create: document.getElementById("screen-create"),
-  catalog: document.getElementById("screen-catalog"),
-};
-
-function showScreen(name) {
-  for (const key of Object.keys(screens)) {
-    screens[key].classList.toggle("active", key === name);
-  }
-}
+import { createGameShell } from "./gameShell.js";
+import { showScreen } from "./screens.js";
 
 let selectedAvatar = AVATARS[0];
 let selectedType = "adulto";
@@ -81,6 +71,15 @@ function renderTypeGroup() {
   }
 }
 
+function openGame(game) {
+  const profile = getActiveProfile();
+  if (!profile) {
+    showScreen("profiles");
+    return;
+  }
+  shell.openGame(game, profile);
+}
+
 function renderCatalog() {
   const profile = getActiveProfile();
   if (!profile) {
@@ -108,15 +107,19 @@ function renderCatalog() {
   grid.innerHTML = "";
   for (const game of GAMES) {
     const unlocked = isGameUnlocked(profile, game.id);
-    const card = document.createElement(unlocked ? "a" : "div");
+    const card = document.createElement(unlocked ? "button" : "div");
     card.className = "game-card" + (unlocked ? "" : " locked");
-    if (unlocked) card.href = game.path;
+    card.style.setProperty("--game-color", game.color || "var(--primary)");
     card.innerHTML = `
       <span class="icon">${game.icon}</span>
       <span class="name">${game.name}</span>
       <span class="tagline">${game.tagline}</span>
       ${unlocked ? "" : `<span class="lock-badge">🔒 Nivel ${game.unlockLevel}</span>`}
     `;
+    if (unlocked) {
+      card.type = "button";
+      card.addEventListener("click", () => openGame(game));
+    }
     grid.appendChild(card);
   }
 
@@ -162,6 +165,13 @@ document.getElementById("btn-switch-profile").addEventListener("click", () => {
   setActiveProfile(null);
   renderProfileList();
   showScreen("profiles");
+});
+
+const shell = createGameShell({
+  onExit: () => {
+    renderCatalog();
+    showScreen("catalog");
+  },
 });
 
 renderProfileList();
