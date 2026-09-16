@@ -9,7 +9,7 @@ if (!activeProfile) {
 }
 
 const preset = getPatientPreset(activeProfile?.patientType);
-const settings = { arm: "both", difficulty: preset.difficulty, duration: 120, skeleton: true };
+const settings = { difficulty: preset.difficulty, duration: 120, skeleton: true };
 
 function wireOptionGroup(id, key) {
   const group = document.getElementById(id);
@@ -24,7 +24,6 @@ function wireOptionGroup(id, key) {
   });
 }
 
-wireOptionGroup("arm-group", "arm");
 wireOptionGroup("difficulty-group", "difficulty");
 wireOptionGroup("duration-group", "duration");
 
@@ -40,13 +39,13 @@ if (tipText) {
 }
 
 const hudScore = document.getElementById("hud-score");
-const hudHits = document.getElementById("hud-hits");
+const hudKnockdowns = document.getElementById("hud-knockdowns");
 const hudTime = document.getElementById("hud-time");
 const comboBadge = document.getElementById("combo-badge");
 
 function updateHud(game, timeLeft) {
   hudScore.textContent = game.score;
-  hudHits.textContent = game.hits;
+  hudKnockdowns.textContent = game.knockdowns;
   const t = Math.max(0, Math.ceil(timeLeft));
   const m = Math.floor(t / 60);
   const s = t % 60;
@@ -63,14 +62,13 @@ function updateHud(game, timeLeft) {
 function showResults(res) {
   document.getElementById("res-score").textContent = res.score;
   document.getElementById("res-accuracy").textContent = `${res.accuracy}%`;
-  document.getElementById("res-hits").textContent = res.hits;
+  document.getElementById("res-knockdowns").textContent = res.knockdowns;
   document.getElementById("res-misses").textContent = res.misses;
   document.getElementById("res-combo").textContent = res.bestCombo;
-  document.getElementById("res-reach").textContent = `${res.reach}%`;
 }
 
 createGameShell({
-  gameId: "atrapa-estrellas",
+  gameId: "derriba-conos",
   profile: activeProfile,
   settings,
   musicMood: preset.mood,

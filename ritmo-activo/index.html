@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>Estatua · Kineurog</title>
+  <title>Ritmo Activo · Kineurog</title>
   <link rel="stylesheet" href="../shared/css/theme.css" />
   <link rel="stylesheet" href="../shared/css/game-screen.css" />
-  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
@@ -14,13 +13,13 @@
   <section id="screen-start" class="screen active">
     <a href="../" class="back-link">← Catálogo</a>
     <div class="brand">
-      <div class="brand-logo">🧍</div>
-      <h1>Estatua</h1>
-      <p class="subtitle">Moveté libremente y quedate quieto cuando se te avise</p>
+      <div class="brand-logo">🕺</div>
+      <h1>Ritmo Activo</h1>
+      <p class="subtitle">Resistencia y movimiento continuo</p>
     </div>
 
     <div class="panel">
-      <p class="hint">Este juego mide tu control postural: cuando aparezca "¡Quieto!" tenés que congelarte por completo. Cuanto más firme te quedes, mejor puntaje.</p>
+      <p class="hint">Movete de un lado al otro sin parar, cruzando las líneas marcadas. Cada cruce suma una repetición: mantené el ritmo todo el tiempo posible.</p>
       <p id="intro-tip" class="intro-tip hidden"></p>
 
       <div class="field">
@@ -50,12 +49,12 @@
       <p id="camera-error" class="error-text"></p>
     </div>
 
-    <p class="footer-note">Recomendado: apoyá el dispositivo a 1.5–2 m de distancia, para que se vea todo tu cuerpo de pie.</p>
+    <p class="footer-note">Recomendado: dejá espacio libre a ambos costados y apoyá el dispositivo a 2 m de distancia.</p>
   </section>
 
   <!-- PANTALLA DE JUEGO -->
   <section id="screen-game" class="screen">
-    <div class="camera-wrap" id="camera-wrap">
+    <div class="camera-wrap">
       <video id="video" playsinline autoplay muted></video>
       <canvas id="overlay"></canvas>
       <div id="loading-overlay" class="loading-overlay">
@@ -63,7 +62,7 @@
         <p id="loading-text">Preparando la cámara…</p>
       </div>
       <div id="countdown" class="countdown hidden"></div>
-      <div id="phase-banner" class="phase-banner hidden"></div>
+      <div id="combo-badge" class="combo-badge"></div>
       <div id="tracking-hint" class="tracking-hint hidden">No te vemos bien: alejate un poco y buscá más luz</div>
     </div>
 
@@ -73,8 +72,8 @@
         <span id="hud-score" class="hud-value">0</span>
       </div>
       <div class="hud-item">
-        <span class="hud-label">Racha</span>
-        <span id="hud-streak" class="hud-value">0</span>
+        <span class="hud-label">Reps</span>
+        <span id="hud-reps" class="hud-value">0</span>
       </div>
       <div class="hud-item">
         <span class="hud-label">Tiempo</span>
@@ -94,20 +93,20 @@
           <span class="result-label">Puntos</span>
         </div>
         <div class="result-card">
-          <span class="result-value" id="res-accuracy">0%</span>
-          <span class="result-label">Congeladas exitosas</span>
+          <span class="result-value" id="res-reps">0</span>
+          <span class="result-label">Repeticiones</span>
         </div>
         <div class="result-card">
-          <span class="result-value" id="res-streak">0</span>
-          <span class="result-label">Racha máxima</span>
+          <span class="result-value" id="res-pace">0</span>
+          <span class="result-label">Ritmo (reps/min)</span>
         </div>
         <div class="result-card">
-          <span class="result-value" id="res-stability">0%</span>
-          <span class="result-label">Estabilidad promedio</span>
+          <span class="result-value" id="res-combo">0</span>
+          <span class="result-label">Mejor racha</span>
         </div>
       </div>
       <button id="btn-again" class="btn-primary" style="width:100%">Jugar de nuevo</button>
-      <button id="btn-menu" class="btn-secondary" style="width:100%; margin-top:10px;">Volver al catálogo</button>
+      <button id="btn-menu" class="btn-secondary" style="width:100%; margin-top:10px;">Volver al menú</button>
     </div>
   </section>
 

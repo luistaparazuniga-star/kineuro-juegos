@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>Kineurog · Juego de Fisioterapia</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <title>Atrapa las Estrellas · Kineurog</title>
+  <link rel="stylesheet" href="../shared/css/theme.css" />
+  <link rel="stylesheet" href="../shared/css/game-screen.css" />
 </head>
 <body>
 
@@ -12,14 +13,14 @@
   <section id="screen-start" class="screen active">
     <a href="../" class="back-link">← Catálogo</a>
     <div class="brand">
-      <div class="brand-logo">🤸</div>
-      <h1>Kineurog</h1>
+      <div class="brand-logo">⭐</div>
+      <h1>Atrapa las Estrellas</h1>
       <p class="subtitle">Terapia de movimiento con tu cámara</p>
     </div>
 
     <div class="panel">
-      <h2>Atrapa las Estrellas</h2>
       <p class="hint">Mueve tu mano para alcanzar las estrellas que aparecen en pantalla. Usa el celular o tablet como espejo: la cámara sigue tus movimientos.</p>
+      <p id="intro-tip" class="intro-tip hidden"></p>
 
       <div class="field">
         <label>¿Qué brazo vas a ejercitar?</label>
@@ -53,7 +54,7 @@
         <input type="checkbox" id="skeleton-toggle" checked />
       </div>
 
-      <button id="btn-start" class="btn-primary">Comenzar</button>
+      <button id="btn-start" class="btn-primary" style="width:100%">Comenzar</button>
       <p id="camera-error" class="error-text"></p>
     </div>
 
@@ -70,6 +71,7 @@
         <p id="loading-text">Preparando la cámara…</p>
       </div>
       <div id="countdown" class="countdown hidden"></div>
+      <div id="combo-badge" class="combo-badge"></div>
       <div id="tracking-hint" class="tracking-hint hidden">No te vemos bien: alejate un poco y buscá más luz</div>
     </div>
 
@@ -111,13 +113,17 @@
           <span class="result-value" id="res-misses">0</span>
           <span class="result-label">Fallos</span>
         </div>
+        <div class="result-card">
+          <span class="result-value" id="res-combo">0</span>
+          <span class="result-label">Mejor combo</span>
+        </div>
         <div class="result-card wide">
           <span class="result-value" id="res-reach">0%</span>
           <span class="result-label">Amplitud de movimiento alcanzada (respecto a tu cuerpo)</span>
         </div>
       </div>
-      <button id="btn-again" class="btn-primary">Jugar de nuevo</button>
-      <button id="btn-menu" class="btn-secondary">Volver al menú</button>
+      <button id="btn-again" class="btn-primary" style="width:100%">Jugar de nuevo</button>
+      <button id="btn-menu" class="btn-secondary" style="width:100%; margin-top:10px;">Volver al menú</button>
     </div>
   </section>
 

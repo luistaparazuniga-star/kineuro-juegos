@@ -1,5 +1,5 @@
-import { LANDMARK } from "./landmarks.js";
-import { playHit, playMiss } from "./sound.js";
+import { LANDMARK, estimatePalm } from "../../shared/js/landmarks.js";
+import { playHit, playMiss, playCombo } from "../../shared/js/soundEngine.js";
 
 const DIFFICULTY = {
   easy: { radiusFactor: 0.36, lifespan: 4.5, gap: 0.4, minDist: 0.8, maxDist: 1.5 },
@@ -18,6 +18,7 @@ const BONE_PAIRS = [
 ];
 
 const HAND_COLOR = { left: "#5bc8ff", right: "#ff9f5b" };
+const COMBO_MILESTONES = [3, 5, 8, 12, 18, 25];
 
 export class Game {
   constructor(settings) {
@@ -26,6 +27,9 @@ export class Game {
     this.score = 0;
     this.hits = 0;
     this.misses = 0;
+    this.combo = 0;
+    this.bestCombo = 0;
+    this.comboMessage = null;
     this.target = null;
     this.spawnTimer = 0.6;
     this.canvasW = 0;
@@ -34,6 +38,9 @@ export class Game {
     this.shoulderMid = null;
     this.wristPx = { left: null, right: null };
     this.reach = { left: 0, right: 0 };
+    this.particles = [];
+    this.popups = [];
+    this.flashAlpha = 0;
     this.running = false;
   }
 
@@ -55,13 +62,11 @@ export class Game {
     this.canvasH = canvasH;
 
     if (landmarks) {
-      const px = (lm) => ({ x: lm.x * canvasW, y: lm.y * canvasH });
+      const px = (p) => (p ? { x: p.x * canvasW, y: p.y * canvasH } : null);
       const ls = landmarks[LANDMARK.LEFT_SHOULDER];
       const rs = landmarks[LANDMARK.RIGHT_SHOULDER];
       const lh = landmarks[LANDMARK.LEFT_HIP];
       const rh = landmarks[LANDMARK.RIGHT_HIP];
-      const lw = landmarks[LANDMARK.LEFT_WRIST];
-      const rw = landmarks[LANDMARK.RIGHT_WRIST];
 
       if (ls && rs) {
         const shoulderMidPx = {
@@ -79,8 +84,13 @@ export class Game {
         this.scale = Math.max(shoulderWidth, torsoHeight, 40);
       }
 
-      if (lw) this.wristPx.left = px(lw);
-      if (rw) this.wristPx.right = px(rw);
+      // Pose models only report the wrist joint, so the raw dot floats a
+      // hand's length away from where players expect their palm to be.
+      // Extrapolating a bit past the wrist along the forearm closes that gap.
+      const leftPalm = estimatePalm(landmarks, LANDMARK.LEFT_WRIST, LANDMARK.LEFT_ELBOW);
+      const rightPalm = estimatePalm(landmarks, LANDMARK.RIGHT_WRIST, LANDMARK.RIGHT_ELBOW);
+      if (leftPalm) this.wristPx.left = px(leftPalm);
+      if (rightPalm) this.wristPx.right = px(rightPalm);
 
       for (const side of this.armsInPlay()) {
         const wrist = this.wristPx[side];
@@ -92,6 +102,10 @@ export class Game {
       }
     }
 
+    this.updateParticles(dt);
+    this.updatePopups(dt);
+    if (this.flashAlpha > 0) this.flashAlpha = Math.max(0, this.flashAlpha - dt * 3);
+
     if (!this.running) return;
 
     if (this.target) {
@@ -101,15 +115,15 @@ export class Game {
         const d = Math.hypot(wrist.x - this.target.x, wrist.y - this.target.y);
         const handRadius = this.scale * 0.16;
         if (d <= this.target.r + handRadius) {
-          this.hits++;
-          this.score += Math.max(10, Math.round(this.target.life * 20) + 10);
-          playHit();
+          this.registerHit(this.target);
           this.target = null;
           this.spawnTimer = this.diff.gap;
         }
       }
       if (this.target && this.target.life <= 0) {
         this.misses++;
+        this.combo = 0;
+        this.comboMessage = null;
         playMiss();
         this.target = null;
         this.spawnTimer = this.diff.gap;
@@ -119,6 +133,65 @@ export class Game {
       if (this.spawnTimer <= 0 && this.shoulderMid) {
         this.spawnTarget();
       }
+    }
+  }
+
+  registerHit(target) {
+    this.hits++;
+    this.combo++;
+    this.bestCombo = Math.max(this.bestCombo, this.combo);
+    const comboMultiplier = 1 + Math.min(this.combo, 10) * 0.08;
+    const gained = Math.round((Math.max(10, Math.round(target.life * 20) + 10)) * comboMultiplier);
+    this.score += gained;
+    this.spawnParticles(target.x, target.y, HAND_COLOR[target.side]);
+    this.spawnPopup(target.x, target.y, `+${gained}`);
+    this.flashAlpha = 0.18;
+    playHit();
+    if (COMBO_MILESTONES.includes(this.combo)) {
+      playCombo(this.combo);
+      this.comboMessage = { text: `¡Combo x${this.combo}!`, ttl: 1.4 };
+    }
+  }
+
+  spawnParticles(x, y, color) {
+    for (let i = 0; i < 14; i++) {
+      const angle = (Math.PI * 2 * i) / 14 + Math.random() * 0.3;
+      const speed = this.scale * (0.6 + Math.random() * 0.8);
+      this.particles.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 0.5 + Math.random() * 0.3,
+        maxLife: 0.8,
+        color,
+      });
+    }
+  }
+
+  updateParticles(dt) {
+    for (const p of this.particles) {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += this.scale * 0.6 * dt;
+      p.life -= dt;
+    }
+    this.particles = this.particles.filter((p) => p.life > 0);
+  }
+
+  spawnPopup(x, y, text) {
+    this.popups.push({ x, y, text, life: 0.9, maxLife: 0.9 });
+  }
+
+  updatePopups(dt) {
+    for (const p of this.popups) {
+      p.y -= this.scale * 0.35 * dt;
+      p.life -= dt;
+    }
+    this.popups = this.popups.filter((p) => p.life > 0);
+    if (this.comboMessage) {
+      this.comboMessage.ttl -= dt;
+      if (this.comboMessage.ttl <= 0) this.comboMessage = null;
     }
   }
 
@@ -190,6 +263,24 @@ export class Game {
       ctx.lineWidth = 5;
       ctx.stroke();
     }
+
+    for (const p of this.particles) {
+      const alpha = Math.max(0, p.life / p.maxLife);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4 * alpha + 1, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + Math.round(alpha * 255).toString(16).padStart(2, "0");
+      ctx.fill();
+    }
+
+    for (const p of this.popups) {
+      const alpha = Math.max(0, p.life / p.maxLife);
+      drawMirroredText(ctx, p.text, p.x, p.y, `bold ${Math.round(this.scale * 0.22)}px sans-serif`, `rgba(255,255,255,${alpha})`);
+    }
+
+    if (this.flashAlpha > 0) {
+      ctx.fillStyle = `rgba(255,255,255,${this.flashAlpha})`;
+      ctx.fillRect(0, 0, this.canvasW, this.canvasH);
+    }
   }
 
   getResults() {
@@ -202,8 +293,20 @@ export class Game {
       misses: this.misses,
       accuracy: total > 0 ? Math.round((this.hits / total) * 100) : 0,
       reach: Math.round(avgReach * 100),
+      bestCombo: this.bestCombo,
     };
   }
+}
+
+function drawMirroredText(ctx, text, x, y, font, color) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(-1, 1);
+  ctx.font = font;
+  ctx.fillStyle = color;
+  ctx.textAlign = "center";
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
 }
 
 function drawStar(ctx, cx, cy, r, color) {

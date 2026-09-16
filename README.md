@@ -17,13 +17,34 @@ estadísticas entre pacientes.
 
 - [`atrapa-estrellas`](atrapa-estrellas) — alcance de brazo/hombro:
   el paciente atrapa estrellas que aparecen alrededor de su cuerpo.
-  Desbloqueado desde el nivel 1.
+  Nivel 1.
+- [`topos-traviesos`](topos-traviesos) — reflejos y control de impulsos:
+  golpear topos que aparecen y desaparecen, evitando las bombas. Nivel 1.
+- [`secuencia-veloz`](secuencia-veloz) — atención y coordinación en orden:
+  tocar números en secuencia (1, 2, 3…) lo más rápido posible. Nivel 2.
 - [`estatua`](estatua) — equilibrio y control postural: se mueve
   libremente y se congela por completo cuando se le indica; mide qué tan
-  quieto se mantiene. Útil también para control de impulsos (TDAH).
-  Se desbloquea en el nivel 2.
+  quieto se mantiene. Útil también para control de impulsos (TDAH). Nivel 2.
+- [`derriba-conos`](derriba-conos) — desplazamientos laterales rápidos:
+  moverse de un lado a otro para derribar conos que aparecen en los
+  extremos. Nivel 2.
+- [`ritmo-activo`](ritmo-activo) — resistencia y movimiento continuo:
+  cruzar de un lado a otro sin parar para sumar repeticiones. Nivel 3.
+- [`esquiva-rayos`](esquiva-rayos) — agilidad y reacción de todo el
+  cuerpo: ubicarse dentro del hueco de un rayo antes de que se dispare.
+  Nivel 3.
+- [`rebote-total`](rebote-total) — reacción visomotora estilo arcade:
+  controlar una barra con el cuerpo para no dejar caer la pelota. Nivel 3.
+- [`salto-del-canguro`](salto-del-canguro) — salto y coordinación de
+  piernas: saltar cuando se indica, dentro de la ventana de tiempo. Nivel 4.
+- [`patada-certera`](patada-certera) — coordinación de piernas y brazos:
+  objetivos altos con la mano, objetivos bajos levantando la rodilla.
+  Nivel 4.
 
-Cada carpeta de juego tiene su propio README con el detalle técnico.
+Cada carpeta de juego tiene su propio README con el detalle técnico. El
+código común (seguimiento de cámara, sonido, música, presets por tipo de
+paciente y el runner de pantallas) vive en [`shared/js`](shared/js) y
+[`shared/css`](shared/css).
 
 ## Perfiles, puntos y logros
 

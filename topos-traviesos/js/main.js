@@ -9,7 +9,7 @@ if (!activeProfile) {
 }
 
 const preset = getPatientPreset(activeProfile?.patientType);
-const settings = { arm: "both", difficulty: preset.difficulty, duration: 120, skeleton: true };
+const settings = { difficulty: preset.difficulty, duration: 120, skeleton: true };
 
 function wireOptionGroup(id, key) {
   const group = document.getElementById(id);
@@ -24,7 +24,6 @@ function wireOptionGroup(id, key) {
   });
 }
 
-wireOptionGroup("arm-group", "arm");
 wireOptionGroup("difficulty-group", "difficulty");
 wireOptionGroup("duration-group", "duration");
 
@@ -64,13 +63,12 @@ function showResults(res) {
   document.getElementById("res-score").textContent = res.score;
   document.getElementById("res-accuracy").textContent = `${res.accuracy}%`;
   document.getElementById("res-hits").textContent = res.hits;
-  document.getElementById("res-misses").textContent = res.misses;
+  document.getElementById("res-bombs").textContent = res.bombsHit;
   document.getElementById("res-combo").textContent = res.bestCombo;
-  document.getElementById("res-reach").textContent = `${res.reach}%`;
 }
 
 createGameShell({
-  gameId: "atrapa-estrellas",
+  gameId: "topos-traviesos",
   profile: activeProfile,
   settings,
   musicMood: preset.mood,

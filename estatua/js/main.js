@@ -1,29 +1,20 @@
 import { StatueGame } from "./game.js";
-import { playCountdownTick, playGo, playFinish, unlockAudio } from "./sound.js";
-import { getActiveProfile, recordSession } from "../../shared/js/profiles.js";
-
-const settings = { difficulty: "medium", duration: 120, skeleton: true };
+import { getActiveProfile } from "../../shared/js/profiles.js";
+import { getPatientPreset, personalizedIntro } from "../../shared/js/patientPresets.js";
+import { createGameShell } from "../../shared/js/gameShell.js";
 
 const activeProfile = getActiveProfile();
 if (!activeProfile) {
   window.location.href = "../";
 }
 
-const screens = {
-  start: document.getElementById("screen-start"),
-  game: document.getElementById("screen-game"),
-  results: document.getElementById("screen-results"),
-};
-
-function showScreen(name) {
-  for (const key of Object.keys(screens)) {
-    screens[key].classList.toggle("active", key === name);
-  }
-}
+const preset = getPatientPreset(activeProfile?.patientType);
+const settings = { difficulty: preset.difficulty, duration: 120, skeleton: true };
 
 function wireOptionGroup(id, key) {
   const group = document.getElementById(id);
   group.querySelectorAll(".opt").forEach((btn) => {
+    btn.classList.toggle("selected", btn.dataset.value === String(settings[key]));
     btn.addEventListener("click", () => {
       group.querySelectorAll(".opt").forEach((b) => b.classList.remove("selected"));
       btn.classList.add("selected");
@@ -40,63 +31,15 @@ document.getElementById("skeleton-toggle").addEventListener("change", (e) => {
   settings.skeleton = e.target.checked;
 });
 
-const video = document.getElementById("video");
-const canvas = document.getElementById("overlay");
-const ctx = canvas.getContext("2d");
+const introTip = document.getElementById("intro-tip");
+const tipText = personalizedIntro(activeProfile);
+if (tipText) {
+  introTip.textContent = tipText;
+  introTip.classList.remove("hidden");
+}
+
 const cameraWrap = document.getElementById("camera-wrap");
-const loadingOverlay = document.getElementById("loading-overlay");
-const loadingText = document.getElementById("loading-text");
-const countdownEl = document.getElementById("countdown");
 const phaseBanner = document.getElementById("phase-banner");
-const errorText = document.getElementById("camera-error");
-const trackingHint = document.getElementById("tracking-hint");
-
-const hudScore = document.getElementById("hud-score");
-const hudStreak = document.getElementById("hud-streak");
-const hudTime = document.getElementById("hud-time");
-
-let tracker = null;
-let game = null;
-let rafId = null;
-let timeLeft = 0;
-let lastFrameTime = 0;
-let sessionState = "idle"; // idle | countdown | playing | done
-let stream = null;
-let countdownInterval = null;
-let countdownTimeout = null;
-let lastBodySeenTime = 0;
-const NO_BODY_HINT_DELAY = 1500;
-
-async function initTrackerOnce() {
-  if (tracker) return;
-  loadingText.textContent = "Cargando el motor de seguimiento…";
-  const { PoseTracker } = await import("./poseTracker.js");
-  tracker = new PoseTracker();
-  await tracker.init();
-}
-
-async function startCamera() {
-  loadingText.textContent = "Activando la cámara…";
-  stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
-    audio: false,
-  });
-  video.srcObject = stream;
-  await video.play();
-  await new Promise((resolve) => {
-    if (video.readyState >= 2) return resolve();
-    video.onloadedmetadata = () => resolve();
-  });
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-}
-
-function stopCamera() {
-  if (stream) {
-    stream.getTracks().forEach((t) => t.stop());
-    stream = null;
-  }
-}
 
 function onPhaseChange(phase) {
   cameraWrap.classList.remove("phase-move", "phase-freeze");
@@ -106,94 +49,11 @@ function onPhaseChange(phase) {
   phaseBanner.innerHTML = `<span>${phase === "freeze" ? "¡Quieto!" : "¡Moveté!"}</span>`;
 }
 
-async function beginSession() {
-  errorText.textContent = "";
-  unlockAudio();
-  showScreen("game");
-  loadingOverlay.classList.remove("hidden");
-  sessionState = "idle";
+const hudScore = document.getElementById("hud-score");
+const hudStreak = document.getElementById("hud-streak");
+const hudTime = document.getElementById("hud-time");
 
-  try {
-    await startCamera();
-  } catch (err) {
-    loadingOverlay.classList.add("hidden");
-    errorText.textContent = "No se pudo acceder a la cámara. Revisá los permisos e intentalo de nuevo.";
-    showScreen("start");
-    stopCamera();
-    return;
-  }
-
-  try {
-    await initTrackerOnce();
-  } catch (err) {
-    loadingOverlay.classList.add("hidden");
-    errorText.textContent = "No se pudo cargar el motor de seguimiento. Revisá tu conexión a internet e intentalo de nuevo.";
-    showScreen("start");
-    stopCamera();
-    return;
-  }
-
-  loadingOverlay.classList.add("hidden");
-  game = new StatueGame(settings, onPhaseChange);
-  timeLeft = settings.duration;
-  updateHud();
-  runCountdown();
-}
-
-function runCountdown() {
-  sessionState = "countdown";
-  let n = 3;
-  countdownEl.classList.remove("hidden");
-  countdownEl.textContent = n;
-  playCountdownTick();
-  countdownInterval = setInterval(() => {
-    n -= 1;
-    if (n > 0) {
-      countdownEl.textContent = n;
-      playCountdownTick();
-    } else {
-      clearInterval(countdownInterval);
-      countdownInterval = null;
-      countdownEl.textContent = "¡Ya!";
-      playGo();
-      countdownTimeout = setTimeout(() => {
-        countdownTimeout = null;
-        countdownEl.classList.add("hidden");
-        sessionState = "playing";
-        game.start();
-        lastFrameTime = performance.now();
-        lastBodySeenTime = lastFrameTime;
-        loop();
-      }, 500);
-    }
-  }, 700);
-}
-
-function loop() {
-  if (sessionState !== "playing") return;
-  const now = performance.now();
-  const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
-  lastFrameTime = now;
-
-  const landmarks = tracker.detect(video);
-  if (landmarks) lastBodySeenTime = now;
-  trackingHint.classList.toggle("hidden", now - lastBodySeenTime < NO_BODY_HINT_DELAY);
-
-  game.update(landmarks, dt, canvas.width, canvas.height);
-  game.render(ctx, settings.skeleton, landmarks);
-
-  timeLeft -= dt;
-  updateHud();
-
-  if (timeLeft <= 0) {
-    finishSession();
-    return;
-  }
-
-  rafId = requestAnimationFrame(loop);
-}
-
-function updateHud() {
+function updateHud(game, timeLeft) {
   hudScore.textContent = game.score;
   hudStreak.textContent = game.streak;
   const t = Math.max(0, Math.ceil(timeLeft));
@@ -202,58 +62,26 @@ function updateHud() {
   hudTime.textContent = `${m}:${String(s).padStart(2, "0")}`;
 }
 
-function finishSession() {
-  sessionState = "done";
-  if (rafId) cancelAnimationFrame(rafId);
-  game.stop();
-  playFinish();
-  stopCamera();
-  phaseBanner.classList.add("hidden");
-  trackingHint.classList.add("hidden");
-  cameraWrap.classList.remove("phase-move", "phase-freeze");
-
-  const res = game.getResults();
+function showResults(res) {
   document.getElementById("res-score").textContent = res.score;
   document.getElementById("res-accuracy").textContent = `${res.accuracy}%`;
   document.getElementById("res-streak").textContent = res.maxStreak;
   document.getElementById("res-stability").textContent = `${res.stability}%`;
-
-  if (activeProfile) {
-    recordSession(activeProfile.id, "estatua", {
-      score: res.score,
-      accuracy: res.accuracy,
-      stability: res.stability,
-      maxStreak: res.maxStreak,
-    });
-  }
-
-  showScreen("results");
+  clearPhaseUI();
 }
 
-function quitSession() {
-  sessionState = "idle";
-  if (rafId) cancelAnimationFrame(rafId);
-  if (countdownInterval) clearInterval(countdownInterval);
-  if (countdownTimeout) clearTimeout(countdownTimeout);
-  countdownInterval = null;
-  countdownTimeout = null;
-  if (game) game.stop();
-  stopCamera();
-  countdownEl.classList.add("hidden");
+function clearPhaseUI() {
   phaseBanner.classList.add("hidden");
-  trackingHint.classList.add("hidden");
   cameraWrap.classList.remove("phase-move", "phase-freeze");
-  showScreen("start");
 }
 
-document.getElementById("btn-start").addEventListener("click", beginSession);
-document.getElementById("btn-quit").addEventListener("click", quitSession);
-document.getElementById("btn-again").addEventListener("click", beginSession);
-document.getElementById("btn-menu").addEventListener("click", () => {
-  window.location.href = "../";
+createGameShell({
+  gameId: "estatua",
+  profile: activeProfile,
+  settings,
+  musicMood: preset.mood,
+  createGame: (s) => new StatueGame(s, onPhaseChange),
+  updateHud,
+  showResults,
+  onQuit: clearPhaseUI,
 });
-
-if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-  errorText.textContent = "Este navegador no soporta acceso a la cámara. Usá Chrome o Safari actualizado.";
-  document.getElementById("btn-start").disabled = true;
-}

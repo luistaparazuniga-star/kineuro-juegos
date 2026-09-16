@@ -2,7 +2,7 @@ import {
   PoseLandmarker,
   FilesetResolver,
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
-import { LandmarkSmoother } from "../../shared/js/motionFilter.js";
+import { LandmarkSmoother } from "./motionFilter.js";
 
 const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm";
 const MODEL_URL =
