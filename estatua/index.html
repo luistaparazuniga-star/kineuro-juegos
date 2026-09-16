@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>Kineurog · Juego de Fisioterapia</title>
+  <title>Estatua · Kineurog</title>
+  <link rel="stylesheet" href="../shared/css/theme.css" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -12,23 +13,13 @@
   <section id="screen-start" class="screen active">
     <a href="../" class="back-link">← Catálogo</a>
     <div class="brand">
-      <div class="brand-logo">🤸</div>
-      <h1>Kineurog</h1>
-      <p class="subtitle">Terapia de movimiento con tu cámara</p>
+      <div class="brand-logo">🧍</div>
+      <h1>Estatua</h1>
+      <p class="subtitle">Moveté libremente y quedate quieto cuando se te avise</p>
     </div>
 
     <div class="panel">
-      <h2>Atrapa las Estrellas</h2>
-      <p class="hint">Mueve tu mano para alcanzar las estrellas que aparecen en pantalla. Usa el celular o tablet como espejo: la cámara sigue tus movimientos.</p>
-
-      <div class="field">
-        <label>¿Qué brazo vas a ejercitar?</label>
-        <div class="btn-group" id="arm-group">
-          <button class="opt" data-value="left">Izquierdo</button>
-          <button class="opt selected" data-value="both">Ambos</button>
-          <button class="opt" data-value="right">Derecho</button>
-        </div>
-      </div>
+      <p class="hint">Este juego mide tu control postural: cuando aparezca "¡Quieto!" tenés que congelarte por completo. Cuanto más firme te quedes, mejor puntaje.</p>
 
       <div class="field">
         <label>Dificultad</label>
@@ -53,16 +44,16 @@
         <input type="checkbox" id="skeleton-toggle" checked />
       </div>
 
-      <button id="btn-start" class="btn-primary">Comenzar</button>
+      <button id="btn-start" class="btn-primary" style="width:100%">Comenzar</button>
       <p id="camera-error" class="error-text"></p>
     </div>
 
-    <p class="footer-note">Recomendado: apoya el dispositivo a 1.5–2 m de distancia, a la altura del pecho, en un lugar bien iluminado.</p>
+    <p class="footer-note">Recomendado: apoyá el dispositivo a 1.5–2 m de distancia, para que se vea todo tu cuerpo de pie.</p>
   </section>
 
   <!-- PANTALLA DE JUEGO -->
   <section id="screen-game" class="screen">
-    <div class="camera-wrap">
+    <div class="camera-wrap" id="camera-wrap">
       <video id="video" playsinline autoplay muted></video>
       <canvas id="overlay"></canvas>
       <div id="loading-overlay" class="loading-overlay">
@@ -70,6 +61,7 @@
         <p id="loading-text">Preparando la cámara…</p>
       </div>
       <div id="countdown" class="countdown hidden"></div>
+      <div id="phase-banner" class="phase-banner hidden"></div>
     </div>
 
     <div class="hud">
@@ -78,8 +70,8 @@
         <span id="hud-score" class="hud-value">0</span>
       </div>
       <div class="hud-item">
-        <span class="hud-label">Aciertos</span>
-        <span id="hud-hits" class="hud-value">0</span>
+        <span class="hud-label">Racha</span>
+        <span id="hud-streak" class="hud-value">0</span>
       </div>
       <div class="hud-item">
         <span class="hud-label">Tiempo</span>
@@ -100,23 +92,19 @@
         </div>
         <div class="result-card">
           <span class="result-value" id="res-accuracy">0%</span>
-          <span class="result-label">Precisión</span>
+          <span class="result-label">Congeladas exitosas</span>
         </div>
         <div class="result-card">
-          <span class="result-value" id="res-hits">0</span>
-          <span class="result-label">Aciertos</span>
+          <span class="result-value" id="res-streak">0</span>
+          <span class="result-label">Racha máxima</span>
         </div>
         <div class="result-card">
-          <span class="result-value" id="res-misses">0</span>
-          <span class="result-label">Fallos</span>
-        </div>
-        <div class="result-card wide">
-          <span class="result-value" id="res-reach">0%</span>
-          <span class="result-label">Amplitud de movimiento alcanzada (respecto a tu cuerpo)</span>
+          <span class="result-value" id="res-stability">0%</span>
+          <span class="result-label">Estabilidad promedio</span>
         </div>
       </div>
-      <button id="btn-again" class="btn-primary">Jugar de nuevo</button>
-      <button id="btn-menu" class="btn-secondary">Volver al menú</button>
+      <button id="btn-again" class="btn-primary" style="width:100%">Jugar de nuevo</button>
+      <button id="btn-menu" class="btn-secondary" style="width:100%; margin-top:10px;">Volver al catálogo</button>
     </div>
   </section>
 

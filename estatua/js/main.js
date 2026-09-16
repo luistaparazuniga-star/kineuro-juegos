@@ -1,8 +1,9 @@
-import { Game } from "./game.js";
+import { StatueGame } from "./game.js";
 import { playCountdownTick, playGo, playFinish, unlockAudio } from "./sound.js";
 import { getActiveProfile, recordSession } from "../../shared/js/profiles.js";
 
-const settings = { arm: "both", difficulty: "medium", duration: 120, skeleton: true };
+const settings = { difficulty: "medium", duration: 120, skeleton: true };
+
 const activeProfile = getActiveProfile();
 if (!activeProfile) {
   window.location.href = "../";
@@ -32,7 +33,6 @@ function wireOptionGroup(id, key) {
   });
 }
 
-wireOptionGroup("arm-group", "arm");
 wireOptionGroup("difficulty-group", "difficulty");
 wireOptionGroup("duration-group", "duration");
 
@@ -43,13 +43,15 @@ document.getElementById("skeleton-toggle").addEventListener("change", (e) => {
 const video = document.getElementById("video");
 const canvas = document.getElementById("overlay");
 const ctx = canvas.getContext("2d");
+const cameraWrap = document.getElementById("camera-wrap");
 const loadingOverlay = document.getElementById("loading-overlay");
 const loadingText = document.getElementById("loading-text");
 const countdownEl = document.getElementById("countdown");
+const phaseBanner = document.getElementById("phase-banner");
 const errorText = document.getElementById("camera-error");
 
 const hudScore = document.getElementById("hud-score");
-const hudHits = document.getElementById("hud-hits");
+const hudStreak = document.getElementById("hud-streak");
 const hudTime = document.getElementById("hud-time");
 
 let tracker = null;
@@ -93,6 +95,14 @@ function stopCamera() {
   }
 }
 
+function onPhaseChange(phase) {
+  cameraWrap.classList.remove("phase-move", "phase-freeze");
+  cameraWrap.classList.add(phase === "freeze" ? "phase-freeze" : "phase-move");
+  phaseBanner.classList.remove("hidden", "move", "freeze");
+  phaseBanner.classList.add(phase);
+  phaseBanner.innerHTML = `<span>${phase === "freeze" ? "¡Quieto!" : "¡Moveté!"}</span>`;
+}
+
 async function beginSession() {
   errorText.textContent = "";
   unlockAudio();
@@ -104,7 +114,7 @@ async function beginSession() {
     await startCamera();
   } catch (err) {
     loadingOverlay.classList.add("hidden");
-    errorText.textContent = "No se pudo acceder a la cámara. Revisa los permisos e inténtalo de nuevo.";
+    errorText.textContent = "No se pudo acceder a la cámara. Revisá los permisos e intentalo de nuevo.";
     showScreen("start");
     stopCamera();
     return;
@@ -114,14 +124,14 @@ async function beginSession() {
     await initTrackerOnce();
   } catch (err) {
     loadingOverlay.classList.add("hidden");
-    errorText.textContent = "No se pudo cargar el motor de seguimiento. Revisa tu conexión a internet e inténtalo de nuevo.";
+    errorText.textContent = "No se pudo cargar el motor de seguimiento. Revisá tu conexión a internet e intentalo de nuevo.";
     showScreen("start");
     stopCamera();
     return;
   }
 
   loadingOverlay.classList.add("hidden");
-  game = new Game(settings);
+  game = new StatueGame(settings, onPhaseChange);
   timeLeft = settings.duration;
   updateHud();
   runCountdown();
@@ -178,7 +188,7 @@ function loop() {
 
 function updateHud() {
   hudScore.textContent = game.score;
-  hudHits.textContent = game.hits;
+  hudStreak.textContent = game.streak;
   const t = Math.max(0, Math.ceil(timeLeft));
   const m = Math.floor(t / 60);
   const s = t % 60;
@@ -191,21 +201,21 @@ function finishSession() {
   game.stop();
   playFinish();
   stopCamera();
+  phaseBanner.classList.add("hidden");
+  cameraWrap.classList.remove("phase-move", "phase-freeze");
 
   const res = game.getResults();
   document.getElementById("res-score").textContent = res.score;
   document.getElementById("res-accuracy").textContent = `${res.accuracy}%`;
-  document.getElementById("res-hits").textContent = res.hits;
-  document.getElementById("res-misses").textContent = res.misses;
-  document.getElementById("res-reach").textContent = `${res.reach}%`;
+  document.getElementById("res-streak").textContent = res.maxStreak;
+  document.getElementById("res-stability").textContent = `${res.stability}%`;
 
   if (activeProfile) {
-    recordSession(activeProfile.id, "atrapa-estrellas", {
+    recordSession(activeProfile.id, "estatua", {
       score: res.score,
       accuracy: res.accuracy,
-      reach: res.reach,
-      hits: res.hits,
-      misses: res.misses,
+      stability: res.stability,
+      maxStreak: res.maxStreak,
     });
   }
 
@@ -222,6 +232,8 @@ function quitSession() {
   if (game) game.stop();
   stopCamera();
   countdownEl.classList.add("hidden");
+  phaseBanner.classList.add("hidden");
+  cameraWrap.classList.remove("phase-move", "phase-freeze");
   showScreen("start");
 }
 
@@ -233,6 +245,6 @@ document.getElementById("btn-menu").addEventListener("click", () => {
 });
 
 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-  errorText.textContent = "Este navegador no soporta acceso a la cámara. Usa Chrome o Safari actualizado.";
+  errorText.textContent = "Este navegador no soporta acceso a la cámara. Usá Chrome o Safari actualizado.";
   document.getElementById("btn-start").disabled = true;
 }

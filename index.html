@@ -2,39 +2,77 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Kineurog Juegos</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-      background: #0f1b2d;
-      color: #f2f6fb;
-      font-family: "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
-      text-align: center;
-      padding: 24px;
-    }
-    h1 { margin: 0; }
-    a.game-card {
-      display: block;
-      background: #142743;
-      color: #3fd0c9;
-      text-decoration: none;
-      font-weight: 700;
-      padding: 18px 28px;
-      border-radius: 14px;
-      min-width: 240px;
-    }
-  </style>
+  <link rel="stylesheet" href="shared/css/theme.css" />
+  <link rel="stylesheet" href="shared/css/catalog.css" />
 </head>
 <body>
-  <h1>Kineurog Juegos</h1>
-  <p>Juegos de fisioterapia con seguimiento de movimiento por cámara.</p>
-  <a class="game-card" href="atrapa-estrellas/">Atrapa las Estrellas</a>
+
+  <!-- SELECCIÓN DE PERFIL -->
+  <section id="screen-profiles" class="screen active">
+    <div class="brand">
+      <div class="brand-logo">🤸</div>
+      <h1>Kineurog Juegos</h1>
+      <p class="subtitle">¿Quién va a jugar hoy?</p>
+    </div>
+    <div id="profile-list" class="profile-grid"></div>
+    <button id="btn-new-profile" class="btn-secondary btn-new-profile">+ Crear perfil nuevo</button>
+  </section>
+
+  <!-- CREAR PERFIL -->
+  <section id="screen-create" class="screen">
+    <div class="panel">
+      <h2>Perfil nuevo</h2>
+
+      <div class="field">
+        <label for="input-name">Nombre</label>
+        <input id="input-name" type="text" maxlength="40" placeholder="Ej: María" />
+      </div>
+
+      <div class="field">
+        <label>Avatar</label>
+        <div id="avatar-grid" class="avatar-grid"></div>
+      </div>
+
+      <div class="field">
+        <label>Perfil</label>
+        <div id="type-group" class="btn-group"></div>
+      </div>
+
+      <div class="field">
+        <label for="input-goal">Objetivo / patología (opcional)</label>
+        <input id="input-goal" type="text" maxlength="60" placeholder="Ej: rehabilitación de hombro" />
+      </div>
+
+      <button id="btn-save-profile" class="btn-primary" style="width:100%">Crear y empezar</button>
+      <button id="btn-cancel-create" class="btn-secondary" style="width:100%; margin-top:10px;">Cancelar</button>
+    </div>
+  </section>
+
+  <!-- CATÁLOGO -->
+  <section id="screen-catalog" class="screen">
+    <div class="catalog-header">
+      <button id="btn-switch-profile" class="profile-chip">
+        <span id="active-avatar" class="avatar-circle"></span>
+        <span class="profile-chip-info">
+          <span id="active-name" class="profile-chip-name"></span>
+          <span id="active-level" class="profile-chip-level"></span>
+        </span>
+      </button>
+      <div class="points-bar-wrap">
+        <div class="points-bar"><div id="points-bar-fill" class="points-bar-fill"></div></div>
+        <span id="points-label" class="points-label"></span>
+      </div>
+    </div>
+
+    <h2 class="section-title">Juegos</h2>
+    <div id="game-grid" class="game-grid"></div>
+
+    <h2 class="section-title">Logros</h2>
+    <div id="achievement-grid" class="achievement-grid"></div>
+  </section>
+
+  <script type="module" src="shared/js/catalog.js"></script>
 </body>
 </html>

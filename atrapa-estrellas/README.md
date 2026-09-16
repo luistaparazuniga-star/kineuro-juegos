@@ -15,12 +15,17 @@ Ruta pensada: `games.kineurog.com/atrapa-estrellas`.
 - Conexión a internet al iniciar una sesión (descarga el modelo de
   seguimiento corporal desde un CDN la primera vez).
 
+Al terminar la sesión, el puntaje se guarda en el perfil activo vía
+[`shared/js/profiles.js`](../shared/js/profiles.js), que otorga puntos y
+puede desbloquear logros/nivel.
+
 ## Probar localmente
 
 ```bash
-cd atrapa-estrellas
+# desde la raíz del repo, no desde esta carpeta —
+# el juego depende de shared/js/profiles.js
 python3 -m http.server 8080
-# abrir http://localhost:8080
+# abrir http://localhost:8080, crear un perfil, y entrar a Atrapa las Estrellas
 ```
 
 ## Estructura

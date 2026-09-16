@@ -1,0 +1,53 @@
+:root {
+  --bg: #0f1b2d;
+  --bg-alt: #142743;
+  --card: #1c3355;
+  --primary: #3fd0c9;
+  --primary-dark: #23a39c;
+  --accent: #ff9f5b;
+  --text: #f2f6fb;
+  --text-muted: #a9b8cc;
+  --success: #4ade80;
+  --danger: #f87171;
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
+}
+
+.btn-primary {
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #06251f;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  padding: 14px;
+  border: 2px solid #2a4468;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
